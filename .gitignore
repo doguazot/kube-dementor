@@ -1,0 +1,20 @@
+# Binaries (repo root only — do not match source dirs like cmd/kube-dementor)
+bin/
+/kube-dementor
+/kube-dementor-*
+/kubehound
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+
+# Environment
+.env
+docker-compose.env
+
+# Local test artifacts
+*.local.*

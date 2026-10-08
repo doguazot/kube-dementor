@@ -1,0 +1,22 @@
+services:
+  neo4j:
+    image: neo4j:5.25.1-community
+    platform: linux/amd64
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      - NEO4J_AUTH=neo4j/password
+      - NEO4J_server_memory_heap_max__size=2GiB
+      - NEO4J_server_memory_pagecache_size=1GiB
+      - NEO4J_client_allow__telemetry=false
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider localhost:7474 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - neo4j_data:/data
+
+volumes:
+  neo4j_data:

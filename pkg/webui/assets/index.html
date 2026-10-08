@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Kube-Dementor</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="color-scheme" content="light"/>
+<meta name="theme-color" content="#0f172a"/>
+<link rel="stylesheet" href="/style.css"/>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<input type="radio" name="subpage" id="sp-main" hidden checked>
+<input type="radio" name="subpage" id="sp-extras" hidden>
+<input type="radio" name="subpage" id="sp-redteam" hidden>
+<input type="radio" name="subpage" id="sp-exclusions" hidden>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="logo" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 2.6v5.5c0 4.2-2.9 7.2-7 8.9-4.1-1.7-7-4.7-7-8.9V5.6L12 3z"/><path d="M9 12l2.2 2.2L15.5 9.7"/></svg></span>
+    <span class="brand-name">Kube-Dementor</span>
+    <span class="brand-ver">console</span>
+  </div>
+  <div class="topbar-right">
+    <span class="topbadge">Kubernetes attack-path scanner</span>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="sidebar" aria-label="Sections">
+    <div class="tabs">
+      <label class="tab active" for="sp-main" data-tab="run" aria-current="page" tabindex="0" role="button" onkeydown="if(event.key===' '||event.key==='Enter'){event.preventDefault();this.click()}">New scan</label>
+      <div class="subitems">
+        <label class="tab subtab" for="sp-extras" data-tab="run" tabindex="0" role="button" onkeydown="if(event.key===' '||event.key==='Enter'){event.preventDefault();this.click()}">Extra scanners</label>
+        <label class="tab subtab" for="sp-redteam" data-tab="run" tabindex="0" role="button" onkeydown="if(event.key===' '||event.key==='Enter'){event.preventDefault();this.click()}">Red-team extras</label>
+        <label class="tab subtab" for="sp-exclusions" data-tab="run" tabindex="0" role="button" onkeydown="if(event.key===' '||event.key==='Enter'){event.preventDefault();this.click()}">Exclusions</label>
+      </div>
+      <button class="tab" data-tab="accepted">Accepted</button>
+      <button class="tab" data-tab="global">Globally accepted</button>
+      <button class="tab" data-tab="history">History</button>
+    </div>
+    <div class="sidebar-foot">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 2.6v5.5c0 4.2-2.9 7.2-7 8.9-4.1-1.7-7-4.7-7-8.9V5.6L12 3z"/></svg>
+      <p><b>Safety guard</b> blocks DELETE during every chain step. Exploitation is read-only by default.</p>
+    </div>
+  </nav>
+
+  <main id="main">
+
+    <section id="tab-run" class="tab-panel active">
+
+      <div class="subpage" id="subpage-main">
+        <div class="page-heading">
+          <div>
+            <p class="page-kicker">Scans</p>
+            <h1>New scan</h1>
+          </div>
+          <span class="page-caption">Configure your next assessment</span>
+        </div>
+
+        <div class="scan-layout">
+          <div class="card scan-config">
+            <div class="card-head">
+              <h2>Scan configuration</h2>
+            </div>
+            <div class="scan-fields">
+              <div class="field-row">
+                <div class="field-heading">
+                  <label for="f-context">Context</label>
+                  <button type="button" class="field-help" popovertarget="help-context" aria-controls="help-context" aria-expanded="false" aria-label="Help for Context">?</button>
+                  <div id="help-context" class="help-popover" popover role="note">
+                    <strong>Context</strong>
+                    <p>The kubeconfig context supplies the cluster and credentials for this scan. Only contexts available on the server are listed.</p>
+                  </div>
+                </div>
+                <select id="f-context" aria-describedby="help-context"></select>
+              </div>
+              <div class="field-row">
+                <div class="field-heading">
+                  <label for="f-ns">Namespace <span class="field-optional">optional</span></label>
+                  <button type="button" class="field-help" popovertarget="help-namespace" aria-controls="help-namespace" aria-expanded="false" aria-label="Help for Namespace">?</button>
+                  <div id="help-namespace" class="help-popover" popover role="note">
+                    <strong>Namespace</strong>
+                    <p>Enter a namespace to limit collection. Leave it blank to attempt cluster-wide collection. If authorization blocks that, the scanner falls back to the context namespace and any namespaces it can enumerate. Coverage gaps are reported.</p>
+                  </div>
+                </div>
+                <input id="f-ns" type="text" placeholder="All permitted namespaces" aria-describedby="help-namespace"/>
+              </div>
+              <div class="field-row">
+                <div class="field-heading">
+                  <label for="f-mode">Mode</label>
+                  <button type="button" class="field-help" popovertarget="help-mode" aria-controls="help-mode" aria-expanded="false" aria-label="Help for Mode">?</button>
+                  <div id="help-mode" class="help-popover" popover role="note">
+                    <strong>Mode</strong>
+                    <p>Discover maps reachable resources. Scan identifies misconfigurations. Exploit verifies findings at the selected level. Chain actively attempts escalation and may create test pods, inject debug containers and execute in pods.</p>
+                  </div>
+                </div>
+                <select id="f-mode" aria-describedby="help-mode">
+                  <option value="discover">Discover</option>
+                  <option value="scan">Scan</option>
+                  <option value="exploit" selected>Exploit</option>
+                  <option value="chain">Chain</option>
+                </select>
+              </div>
+              <div class="field-row">
+                <div class="field-heading">
+                  <label for="f-level">Exploit level</label>
+                  <button type="button" class="field-help" popovertarget="help-level" aria-controls="help-level" aria-expanded="false" aria-label="Help for Exploit level">?</button>
+                  <div id="help-level" class="help-popover" popover role="note">
+                    <strong>Exploit level</strong>
+                    <p>In Exploit mode, Safe uses authorization checks, Read-only permits GET/LIST probes including secrets and tokens, and Intrusive adds server-side dry-run tests. This setting does not limit Chain mode's active escalation.</p>
+                  </div>
+                </div>
+                <select id="f-level" aria-describedby="help-level">
+                  <option value="safe">Safe</option>
+                  <option value="read-only" selected>Read-only</option>
+                  <option value="intrusive">Intrusive (dry-run)</option>
+                </select>
+              </div>
+              <div class="field-row">
+                <div class="field-heading">
+                  <label for="f-sev">Display severity</label>
+                  <button type="button" class="field-help" popovertarget="help-severity" aria-controls="help-severity" aria-expanded="false" aria-label="Help for Display severity">?</button>
+                  <div id="help-severity" class="help-popover" popover role="note">
+                    <strong>Display severity</strong>
+                    <p>This sets the initial results filter, not the collection scope. All severities are collected. Lower the filter in Results at any time to see medium, low or informational findings.</p>
+                  </div>
+                </div>
+                <select id="f-sev" aria-describedby="help-severity">
+                  <option value="">All</option>
+                  <option value="CRITICAL">Critical</option>
+                  <option value="HIGH" selected>High and above</option>
+                  <option value="MEDIUM">Medium and above</option>
+                  <option value="LOW">Low and above</option>
+                  <option value="INFO">Info and above</option>
+                </select>
+              </div>
+              <div class="field-row">
+                <div class="field-heading">
+                  <label for="f-profile">Threat profile</label>
+                  <button type="button" class="field-help" popovertarget="help-profile" aria-controls="help-profile" aria-expanded="false" aria-label="Help for Threat profile">?</button>
+                  <div id="help-profile" class="help-popover" popover role="note">
+                    <strong>Threat profile</strong>
+                    <p>External uses the internet-facing or shared-cluster baseline. Internal trust lowers perimeter-dependent rules by one severity step. RBAC, container escape and known-exploited vulnerabilities keep their severity.</p>
+                  </div>
+                </div>
+                <select id="f-profile" aria-describedby="help-profile">
+                  <option value="external" selected>External</option>
+                  <option value="internal">Internal trust</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="scan-options">
+              <div class="check-field">
+                <label class="check">
+                  <input id="f-hide-fp" type="checkbox" checked aria-describedby="help-fp"/>
+                  <span>Hide false positives</span>
+                </label>
+                <button type="button" class="field-help" popovertarget="help-fp" aria-controls="help-fp" aria-expanded="false" aria-label="Help for Hide false positives">?</button>
+                <div id="help-fp" class="help-popover" popover role="note">
+                  <strong>Hide false positives</strong>
+                  <p>Hide findings that verification proved are false positives. This does not turn an unverified finding into a clean result.</p>
+                </div>
+              </div>
+              <div class="check-field">
+                <label class="check safety">
+                  <input id="f-guard" type="checkbox" checked disabled aria-describedby="help-guard"/>
+                  <span id="guard-label">Safety guard enabled</span>
+                </label>
+                <button type="button" class="field-help" popovertarget="help-guard" aria-controls="help-guard" aria-expanded="false" aria-label="Help for Safety guard">?</button>
+                <div id="help-guard" class="help-popover" popover role="note">
+                  <strong>Safety guard</strong>
+                  <p>The guard restricts mutation requests. Chain always blocks DELETE but allows tracked test-pod creation, exec and ephemeral-container injection. Only the separate Cleanup action deletes tracked chain pods.</p>
+                </div>
+              </div>
+              <div class="check-field">
+                <label class="check safety-override">
+                  <input id="f-no-guard" type="checkbox" aria-describedby="help-override"/>
+                  <span>Disable safety guard</span>
+                </label>
+                <button type="button" class="field-help" popovertarget="help-override" aria-controls="help-override" aria-expanded="false" aria-label="Help for Disable safety guard">?</button>
+                <div id="help-override" class="help-popover" popover role="note">
+                  <strong>Disable safety guard</strong>
+                  <p>Removes guard restrictions for non-Chain scans. Use only on an authorized test cluster. This override does not disable Chain's mandatory DELETE protection.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="actions">
+              <button id="run-btn" class="primary">Run scan</button>
+              <span id="run-status" class="muted" role="status" aria-live="polite"></span>
+            </div>
+          </div>
+
+          <aside class="card scan-plan" aria-labelledby="scan-plan-title">
+            <div class="card-head">
+              <h2 id="scan-plan-title">Scan plan</h2>
+              <span class="plan-caption">Selection preview</span>
+            </div>
+            <dl class="plan-details">
+              <div><dt>Context</dt><dd id="plan-context">Not selected</dd></div>
+              <div><dt>Namespace</dt><dd id="plan-namespace">All permitted namespaces</dd></div>
+              <div><dt>Mode</dt><dd id="plan-mode">Exploit</dd></div>
+              <div><dt>Verification</dt><dd id="plan-level">Read-only</dd></div>
+              <div><dt>Profile</dt><dd id="plan-profile">External</dd></div>
+              <div><dt>Safety guard</dt><dd id="plan-guard">On</dd></div>
+            </dl>
+            <p id="plan-activity" class="plan-activity"></p>
+            <div class="plan-modules">
+              <h3>Optional modules</h3>
+              <p id="plan-modules">None enabled</p>
+              <div class="plan-exclusions"><span>Exclusions</span><span id="plan-exclusions">None</span></div>
+            </div>
+            <p class="plan-footnote">Change optional settings under New scan in the sidebar. No scan starts until you click Run scan.</p>
+          </aside>
+        </div>
+
+        <div class="card" id="live-card" hidden>
+          <div class="card-head">
+            <h2>Live progress</h2>
+          </div>
+          <pre id="live-log"></pre>
+        </div>
+
+        <div class="card" id="graph-card" hidden>
+          <div class="result-header">
+            <h2>Attack graph</h2>
+            <span id="graph-count" class="muted"></span>
+          </div>
+          <p class="muted" id="graph-caption"></p>
+          <div class="graph-toolbar">
+            <span class="graph-key success">Successful step</span>
+            <span class="graph-key failed">Failed attempt</span>
+            <span class="graph-key skipped">Skipped / not attempted</span>
+            <span class="graph-key potential">Potential / unverified</span>
+            <label class="check inline"><input id="graph-onlyme" type="checkbox"/><span>Only from current credentials</span></label>
+            <button class="btn" id="graph-reset" type="button">Reset view</button>
+          </div>
+          <div class="graph-viewport">
+            <svg id="graph-svg" role="img" aria-label="Attack graph. Drag nodes, pan the background, and scroll to zoom."></svg>
+          </div>
+          <div id="graph-empty" class="empty" hidden>No graph data was stored for this run. This is not evidence of a secure cluster.</div>
+          <pre id="graph-detail" class="graph-detail" hidden></pre>
+        </div>
+
+        <div class="card" id="paths-card" hidden>
+          <div class="result-header collapsible" id="paths-toggle">
+            <h2>Attack paths <small class="graph-caption">where you are, where you can jump</small></h2>
+            <span class="toggle-chev">▾</span>
+          </div>
+          <div id="paths-body">
+            <div id="identity-banner" class="identity-banner"></div>
+            <div class="paths-toolbar">
+              <label class="check inline">
+                <input id="p-onlyme" type="checkbox" checked/>
+                <span>Only paths from <b>me</b> (user · groups · impersonatable SAs)</span>
+              </label>
+              <label class="check inline">
+                <input id="p-onlyhv" type="checkbox" checked/>
+                <span>Only high-value targets</span>
+              </label>
+              <span class="muted" id="paths-count"></span>
+            </div>
+            <div class="table-wrap">
+              <table class="paths-table" id="paths-table">
+                <thead><tr>
+                  <th>Start</th><th>Via</th><th>Hops</th><th>End</th><th>Severity</th><th></th>
+                </tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <div id="paths-empty" class="paths-empty" hidden>
+              No attack paths reach a high-value target from your current identity surface.
+              Uncheck <b>Only from me</b> to see cluster-wide paths (every service account in this namespace).
+            </div>
+          </div>
+        </div>
+
+        <div class="card" id="result-card" hidden>
+          <div class="result-header">
+            <h2>Results</h2>
+            <div id="safety-chip" class="chip chip-ok" hidden>safety-guard on · 0 blocked</div>
+            <div id="stealth-chip" class="chip chip-stealth" hidden>stealth on</div>
+            <div id="runtime-chip" class="chip chip-stealth" hidden>runtime-extras on</div>
+            <div id="cni-chip"     class="chip chip-stealth" hidden>cni-extras on</div>
+            <div id="profile-chip" class="chip chip-profile" hidden>profile · external</div>
+            <div id="escape-chip"  class="chip chip-escape" hidden>escape · …</div>
+          </div>
+          <div id="summary" class="summary-block"></div>
+
+          <div class="filters">
+            <input id="q" type="search" placeholder="Search title, resource or evidence…"/>
+            <select id="fi-sev" title="Minimum severity floor (e.g. High = High + Critical)">
+              <option value="">All severities</option>
+              <option value="CRITICAL">Critical only</option>
+              <option value="HIGH">High and above</option>
+              <option value="MEDIUM">Medium and above</option>
+              <option value="LOW">Low and above</option>
+              <option value="INFO">Info and above</option>
+            </select>
+            <select id="fi-cat">
+              <option value="">All categories</option>
+            </select>
+            <select id="fi-exp">
+              <option value="">Any exploit status</option>
+              <option value="exploited">Exploited</option>
+              <option value="verified">Verified</option>
+              <option value="fp">False positive</option>
+              <option value="unverified">Unverified</option>
+            </select>
+            <div class="view-toggle">
+              <button class="view-btn active" data-view="grouped">Grouped</button>
+              <button class="view-btn" data-view="flat">Flat</button>
+            </div>
+            <button id="ns-expand-all" class="ghost" title="Expand every namespace group">Expand all</button>
+            <button id="ns-collapse-all" class="ghost" title="Collapse every namespace group">Collapse all</button>
+            <button id="export-json" class="ghost">Download JSON</button>
+            <button id="export-csv" class="ghost">Download CSV</button>
+          </div>
+
+          <div id="findings"></div>
+        </div>
+      </div>
+
+      <div class="subpage" id="subpage-extras">
+        <div class="card">
+          <div class="card-head">
+            <h2>Extra scanners</h2>
+            <span class="muted">Optional — enriches the next scan. Nothing runs until you press Run scan.</span>
+          </div>
+          <div class="subsection first">
+            <div class="sub-title">Container image &amp; service scanning</div>
+            <div class="checks">
+              <label class="check">
+                <input id="f-trivy" type="checkbox"/>
+                <span>Run <b>Trivy</b> — scan every container image for CVEs (needs <code>trivy</code> on PATH)</span>
+              </label>
+              <label class="check">
+                <input id="f-nuclei" type="checkbox"/>
+                <span>Run <b>Nuclei</b> — probe exposed services &amp; API server (needs <code>nuclei</code> on PATH)</span>
+              </label>
+            </div>
+          </div>
+          <div class="subsection">
+            <div class="sub-title">Threat intelligence</div>
+            <div class="checks">
+              <label class="check">
+                <input id="f-refresh-intel" type="checkbox" checked/>
+                <span>Refresh Trivy DB + Nuclei templates + CISA KEV feed before scanning (cached, safe offline)</span>
+              </label>
+            </div>
+            <div id="intel-status" class="intel-status muted"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="subpage" id="subpage-redteam">
+        <div class="card">
+          <div class="card-head">
+            <h2>Red-team extras <span class="pill pill-warning">opt-in</span></h2>
+            <span class="muted">Off by default · read-only.</span>
+          </div>
+          <p class="sub-note">These modules are OFF by default. They are READ-ONLY (Kube-Dementor still never touches audit logs, nor deletes/modifies anything).</p>
+          <div class="checks">
+            <label class="check">
+              <input id="f-stealth" type="checkbox"/>
+              <span><b>Stealth / Evasion</b> — detect Falco / Tetragon / StackRox / Aqua / Sysdig, audit-pipeline recon, MITRE ATT&amp;CK for Containers technique catalog, scanner noise self-meter.</span>
+            </label>
+            <label class="check">
+              <input id="f-runtime" type="checkbox"/>
+              <span><b>Runtime-aware extras</b> — static credential harvest from pod env-vars (AWS/GCP/GH/private-key patterns); service-mesh (Istio/Linkerd/Consul) mTLS audit.</span>
+            </label>
+            <label class="check">
+              <input id="f-cni" type="checkbox"/>
+              <span><b>CNI &amp; network intelligence</b> — CNI detection (Calico/Cilium/Flannel/…); NetworkPolicy-bypass detection; DNS-poisoning enabler (who can patch CoreDNS config).</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="subpage" id="subpage-exclusions">
+        <div class="card">
+          <div class="card-head">
+            <h2>Exclusions</h2>
+            <button type="button" class="field-help" popovertarget="help-exclusions" aria-controls="help-exclusions" aria-expanded="false" aria-label="Help for Exclusions">?</button>
+            <div id="help-exclusions" class="help-popover" popover role="note">
+              <strong>Exclusions</strong>
+              <p>YAML or JSON. Every rule needs <code>ruleId</code> (exact) or <code>ruleIdPattern</code> (regex); optional filters: <code>namespaces</code>, <code>resourceKinds</code>, <code>namePattern</code>, <code>severityMin</code> (CRITICAL|HIGH|MEDIUM|LOW|INFO) and a documenting <code>reason</code>. The file is validated when you press Run scan — invalid files are rejected with the exact error. Chain mode ignores exclusions.</p>
+            </div>
+            <span class="muted">Known-expected findings are filtered before they reach the report.</span>
+          </div>
+          <textarea id="f-exclusions" class="exclusion-box" rows="10"
+            placeholder="# YAML example&#10;version: 1&#10;rules:&#10;  - ruleId: KH-WRK-001&#10;    namespaces: [cyberchef-dev]&#10;    reason: privileged container is expected here&#10;  - ruleIdPattern: ^KH-SEC-.*$&#10;    namespaces: [legacy-app]&#10;    reason: legacy app uses long-lived tokens"></textarea>
+          <div class="exclusion-actions">
+            <input id="f-excl-file" type="file" accept=".yaml,.yml,.json,.txt" hidden/>
+            <button id="f-excl-upload" class="ghost">Load file…</button>
+            <span id="f-excl-status" class="muted"></span>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <section id="tab-accepted" class="tab-panel">
+      <div class="card">
+        <div class="card-head">
+          <h2>Accepted findings</h2>
+          <small id="accepted-count" class="muted"></small>
+        </div>
+        <p class="muted">These are findings you (or an uploaded exclusion file) explicitly accepted for the current scan. They are kept for audit and can be reactivated.</p>
+        <div id="accepted-list"></div>
+      </div>
+    </section>
+
+    <section id="tab-global" class="tab-panel">
+      <div class="card">
+        <div class="card-head">
+          <h2>Globally accepted findings</h2>
+        </div>
+        <p class="muted">These acceptances persist to <code id="global-path">~/.kube-dementor/accepted.json</code> and are applied to <b>every</b> scan until removed. Use sparingly — a global accept silences a finding everywhere.</p>
+        <div id="global-list"></div>
+      </div>
+    </section>
+
+    <section id="tab-history" class="tab-panel">
+      <div class="card">
+        <div class="card-head">
+          <h2>Completed scans</h2>
+        </div>
+        <div class="table-wrap">
+          <table id="history-table">
+            <thead><tr>
+              <th>Time</th><th>Cluster</th><th>Context</th><th>Mode</th>
+              <th>Critical</th><th>High</th><th>Exploited</th><th></th>
+            </tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="/app.js"></script>
+</body>
+</html>
